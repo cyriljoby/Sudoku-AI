@@ -50,14 +50,18 @@ class BTSolver:
     def forwardChecking ( self ):
         modified = {}
         for v in self.network.variables:
-            if v.isAssigned():
-                for neighbor in self.network.getNeighborsOfVariable(v):
-                    if not neighbor.isAssigned() and neighbor.getDomain().contains(v.getAssignment()):
-                        self.trail.push(neighbor)
-                        neighbor.removeValueFromDomain(v.getAssignment())
-                        modified[neighbor] = neighbor.getDomain()
-                        if neighbor.domain.size() == 0:
-                            return (modified, False)
+            if not v.isAssigned():
+                continue
+            val = v.getAssignment()
+            for neighbor in self.network.getNeighborsOfVariable(v):
+                if neighbor.isAssigned() or not neighbor.getDomain().contains(val):
+                    continue
+                if neighbor not in modified:
+                    self.trail.push(neighbor)
+                neighbor.removeValueFromDomain(val)
+                modified[neighbor] = neighbor.getDomain()
+                if neighbor.domain.size() == 0:
+                    return (modified, False)
         return (modified, True)
 
     # =================================================================
@@ -174,9 +178,10 @@ class BTSolver:
                 The LCV is first and the MCV is last
     """
     def getValuesLCVOrder ( self, v ):
+        neighbors = self.network.getNeighborsOfVariable(v)
         def countEliminations(val):
             count = 0
-            for neighbor in self.network.getNeighborsOfVariable(v):
+            for neighbor in neighbors:
                 if not neighbor.isAssigned() and neighbor.getDomain().contains(val):
                     count += 1
             return count
