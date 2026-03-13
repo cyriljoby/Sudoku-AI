@@ -101,7 +101,45 @@ class BTSolver:
                 The bool is true if assignment is consistent, false otherwise.
     """
     def norvigCheck ( self ):
-        return ({}, False)
+        modified, fc_consistent = self.forwardChecking()
+        if not fc_consistent:
+            return (modified, False)
+
+        for c in self.network.getConstraints():
+            # For each constraint, check each possible value (1 to N)
+            for val in range(1, self.gameboard.N + 1):
+                possible_spots = []
+                for v in c.vars:
+                    if v.isAssigned():
+                        if v.getAssignment() == val:
+                            possible_spots = [v]
+                            break
+                    elif v.getDomain().contains(val):
+                        possible_spots.append(v)
+                
+                # If there are no possible spots for this value, the constraint is violated
+                if len(possible_spots) == 0:
+                    return (modified, False)
+                    
+                # If there is exactly one possible spot for this value, assign it
+                if len(possible_spots) == 1 and not possible_spots[0].isAssigned():
+                    v = possible_spots[0]
+                    if v not in modified:
+                        self.trail.push(v)
+                    v.assignValue(val)
+                    modified[v] = v.getDomain()
+                    
+                    # Need to propagate the assignment since we just modified a variable
+                    for neighbor in self.network.getNeighborsOfVariable(v):
+                        if not neighbor.isAssigned() and neighbor.getDomain().contains(val):
+                            if neighbor not in modified:
+                                self.trail.push(neighbor)
+                            neighbor.removeValueFromDomain(val)
+                            modified[neighbor] = neighbor.getDomain()
+                            if neighbor.domain.size() == 0:
+                                return (modified, False)
+
+        return (modified, True)
 
     """
          Optional TODO: Implement your own advanced Constraint Propagation
@@ -148,7 +186,25 @@ class BTSolver:
                 If there is only one variable, return the list of size 1 containing that variable.
     """
     def MRVwithTieBreaker ( self ):
-        return None
+        unassigned = [v for v in self.network.variables if not v.isAssigned()]
+        if not unassigned:
+            return [None]
+        
+        min_size = min(v.domain.size() for v in unassigned)
+        mrv_vars = [v for v in unassigned if v.domain.size() == min_size]
+        
+        if len(mrv_vars) == 1:
+            return mrv_vars
+            
+        max_degree = -1
+        degrees = {}
+        for v in mrv_vars:
+            degree = sum(1 for neighbor in self.network.getNeighborsOfVariable(v) if not neighbor.isAssigned())
+            degrees[v] = degree
+            if degree > max_degree:
+                max_degree = degree
+                
+        return [v for v in mrv_vars if degrees[v] == max_degree]
 
     """
          Optional TODO: Implement your own advanced Variable Heuristic
