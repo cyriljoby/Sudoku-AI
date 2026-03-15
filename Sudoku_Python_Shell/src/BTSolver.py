@@ -148,7 +148,74 @@ class BTSolver:
          your program into a tournament.
      """
     def getTournCC ( self ):
-        return False
+        pushed = set()
+
+        def safe_push(v):
+            if v not in pushed:
+                self.trail.push(v)
+                pushed.add(v)
+
+        changed = True
+        while changed:
+            changed = False
+
+            # FC pass
+            for v in self.network.variables:
+                if not v.isAssigned():
+                    continue
+                val = v.getAssignment()
+                for neighbor in self.network.getNeighborsOfVariable(v):
+                    if neighbor.isAssigned() or not neighbor.getDomain().contains(val):
+                        continue
+                    safe_push(neighbor)
+                    neighbor.removeValueFromDomain(val)
+                    if neighbor.domain.size() == 0:
+                        return False
+                    changed = True
+
+            # Norvig pass
+            for c in self.network.getConstraints():
+                for val in range(1, self.gameboard.N + 1):
+                    possible_spots = []
+                    already_assigned = False
+                    for v in c.vars:
+                        if v.isAssigned():
+                            if v.getAssignment() == val:
+                                already_assigned = True
+                                break
+                        elif v.getDomain().contains(val):
+                            possible_spots.append(v)
+                    if already_assigned:
+                        continue
+                    if len(possible_spots) == 0:
+                        return False
+                    if len(possible_spots) == 1:
+                        v = possible_spots[0]
+                        safe_push(v)
+                        v.assignValue(val)
+                        changed = True
+                        for neighbor in self.network.getNeighborsOfVariable(v):
+                            if not neighbor.isAssigned() and neighbor.getDomain().contains(val):
+                                safe_push(neighbor)
+                                neighbor.removeValueFromDomain(val)
+                                if neighbor.domain.size() == 0:
+                                    return False
+
+            # Singleton pass
+            for v in self.network.variables:
+                if not v.isAssigned() and v.domain.size() == 1:
+                    val = v.domain.values[0]
+                    safe_push(v)
+                    v.assignValue(val)
+                    changed = True
+                    for neighbor in self.network.getNeighborsOfVariable(v):
+                        if not neighbor.isAssigned() and neighbor.getDomain().contains(val):
+                            safe_push(neighbor)
+                            neighbor.removeValueFromDomain(val)
+                            if neighbor.domain.size() == 0:
+                                return False
+
+        return True
 
     # ==================================================================
     # Variable Selectors
@@ -213,7 +280,7 @@ class BTSolver:
          your program into a tournament.
      """
     def getTournVar ( self ):
-        return None
+        return self.MRVwithTieBreaker()[0]
 
     # ==================================================================
     # Value Selectors
@@ -250,7 +317,7 @@ class BTSolver:
          your program into a tournament.
      """
     def getTournVal ( self, v ):
-        return None
+        return self.getValuesLCVOrder(v)
 
     # ==================================================================
     # Engine Functions
