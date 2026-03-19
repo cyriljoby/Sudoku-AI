@@ -1,0 +1,69 @@
+Creating world number: 0.
+Creating world number: 1.
+Creating world number: 2.
+Creating world number: 3.
+Creating world number: 4.
+Creating world number: 5.
+Creating world number: 6.
+Creating world number: 7.
+Creating world number: 8.
+Creating world number: 9.
+Creating world number: 10.
+Creating world number: 11.
+Creating world number: 12.
+Creating world number: 13.
+Creating world number: 14.
+Creating world number: 0.
+Creating world number: 1.
+Creating world number: 2.
+Creating world number: 3.
+Creating world number: 4.
+Creating world number: 5.
+Creating world number: 6.
+Creating world number: 7.
+Creating world number: 8.
+Creating world number: 9.
+Creating world number: 10.
+Creating world number: 11.
+Creating world number: 12.
+Creating world number: 13.
+Creating world number: 14.
+Creating world number: 0.
+Creating world number: 1.
+Creating world number: 2.
+Creating world number: 3.
+Creating world number: 4.
+Creating world number: 5.
+Creating world number: 6.
+Creating world number: 7.
+Creating world number: 8.
+Creating world number: 9.
+Creating world number: 10.
+Creating world number: 11.
+Creating world number: 12.
+Creating world number: 13.
+Creating world number: 14.
+Creating world number: 0.
+Creating world number: 1.
+Creating world number: 2.
+Creating world number: 3.
+Creating world number: 4.
+Creating world number: 5.
+Creating world number: 6.
+Creating world number: 7.
+Creating world number: 8.
+Creating world number: 9.
+Creating world number: 10.
+Creating world number: 11.
+Creating world number: 12.
+Creating world number: 13.
+Creating world number: 14.
+Generating boards...
+Board Size             | Sample Size | Boards Solved   | Average Backtracks  
+---------------------------------------------------------------------------
+9x9 (easy)             | 15          | 14              | 403                 
+12x12 (intermediate)   | 15          | 13              | 1738                
+16x16 (hard)           | 15          | 0               | N/A (Timeout)       
+25x25 (Expert)         | 15          | 0               | N/A (Timeout)       
+---------------------------------------------------------------------------
+Total Summary          | 60          | 27              | 1046                
